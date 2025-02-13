@@ -1,0 +1,50 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.2.1'
+    id 'io.spring.dependency-management' version '1.1.4'
+    id 'com.avast.gradle.docker-compose' version '0.14.10'
+}
+
+group = 'ru.anikson'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.security:spring-security-web:5.8.0'
+    implementation 'org.springframework.security:spring-security-config:5.8.0'
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+    implementation 'org.springframework.session:spring-session-data-redis'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'redis.clients:jedis'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    runtimeOnly 'org.postgresql:postgresql'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
+    implementation 'org.liquibase:liquibase-core'
+
+    implementation 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+
+}
+
+test {
+    useJUnitPlatform()
+}
+
+dockerCompose {
+    useComposeFiles = ['docker-compose.yml']
+    projectName = 'cloud-file-storage'
+}
+
+task startDockerCompose(type: DockerComposeUp) {
+    dependsOn 'dockerComposeUp'
+}
+
+task stopDockerCompose(type: DockerComposeDown) {
+    dependsOn 'dockerComposeDown'
+}

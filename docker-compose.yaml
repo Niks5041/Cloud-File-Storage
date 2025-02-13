@@ -1,0 +1,40 @@
+services:
+  app:
+    build:
+      context: .
+    image: cfs-server
+    container_name: cfs-server
+    ports:
+      - "8080:8080"
+    depends_on:
+        - cfs-mongo
+        - cfs-postgres
+    environment:
+      - SPRING_DATA_MONGODB_URI=mongodb://cfs-mongo:27017/cfs-db
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://cfs-postgres:5432/cfs-postgres-db
+      - SPRING_DATASOURCE_USERNAME=cfs
+      - SPRING_DATASOURCE_PASSWORD=cfs
+
+  cfs-mongo:
+    image: mongo:latest
+    container_name: cfs-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  cfs-postgres:
+    image: postgres:16.1
+    container_name: cfs-postgres
+    ports:
+      - "6541:5432"
+    environment:
+      - POSTGRES_PASSWORD=cfs
+      - POSTGRES_USER=cfs
+      - POSTGRES_DB=cfs-postgres-db
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+volumes:
+  mongo-data:
+  postgres-data:
