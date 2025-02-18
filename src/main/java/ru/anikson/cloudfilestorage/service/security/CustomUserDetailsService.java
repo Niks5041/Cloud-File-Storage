@@ -14,17 +14,16 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     private final UserRepository userRepository;
 
+    // Метод, который Spring Security вызывает при аутентификации пользователя по логину.
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Пользователь не найден"));
 
         return org.springframework.security.core.userdetails.User
-                .withUsername(user.getUsername())
-                .password(user.getPassword())
+                .withUsername(user.getUsername()) // Устанавливаем логин пользователя.
+                .password(user.getPassword()) // Устанавливаем пароль (зашифрованный).
                 .build();
-    }
+    }// Создаем объект UserDetails, который Spring Security использует для проверки учетных данных.
 }
 
-//такйоже в сервисе и нвойы метод в конфиге
-//разобраться с авториазцей

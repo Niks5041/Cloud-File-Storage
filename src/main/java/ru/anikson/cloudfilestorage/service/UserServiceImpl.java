@@ -2,13 +2,11 @@ package ru.anikson.cloudfilestorage.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ru.anikson.cloudfilestorage.dao.UserRepository;
 import ru.anikson.cloudfilestorage.entity.User;
-import ru.anikson.cloudfilestorage.exception.NotFoundException;
-import ru.anikson.cloudfilestorage.exception.ValidationException;
+import ru.anikson.cloudfilestorage.service.security.CustomUserDetailsService;
 
 @Service
 @RequiredArgsConstructor
@@ -17,12 +15,14 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final CustomUserDetailsService customUserDetailsService;
 
     @Override
-    public void registerUser(String username, String password) {
+    public boolean registerUser(String username, String password) {
         log.info("Регистрация пользователя {}", username);
         if (userRepository.existsByUsername(username)) {
-            throw new ValidationException("Пользователь с таким именем уже существует");
+            log.warn("Пользователь {} уже существует", username);
+           return false;
         }
 
         User newUser = new User();
@@ -31,19 +31,7 @@ public class UserServiceImpl implements UserService {
 
         userRepository.save(newUser);
         log.info("Пользователь {} зарегистрирован", username);
-    }
-
-    @Override
-    public UserDetails authenticateUser(String username) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
-
-        // Возвращаем объект UserDetails, который используется Spring Security для аутентификации
-        return org.springframework.security.core.userdetails.User
-                .withUsername(user.getUsername())
-                .password(user.getPassword())
-                .build();
-
+        return true;
     }
 
 //    public UserDetails getCurrentUser() {
