@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ru.anikson.cloudfilestorage.entity.User;
 import ru.anikson.cloudfilestorage.service.UserService;
-import ru.anikson.cloudfilestorage.service.security.CustomUserDetailsService;
 
 @Controller
 @Slf4j
@@ -18,7 +17,6 @@ import ru.anikson.cloudfilestorage.service.security.CustomUserDetailsService;
 public class AuthController {
 
     private final UserService userService;
-    private final CustomUserDetailsService customUserDetailsService;
 
     @GetMapping("/register")
     public String showRegisterForm(Model model) {
@@ -41,10 +39,10 @@ public class AuthController {
         return  "redirect:/login";
     }
 
-//    @GetMapping("/login")
-//    public String showLoginForm(Model model) {
-//        log.info("GET /login");
-//        model.addAttribute("loginForm", new User());
-//        return "login";
-//    }
+    @GetMapping("/login")
+    public String showLoginForm(Model model) {
+        log.info("GET /login");
+        model.addAttribute("loginForm", new User());
+        return "login";
+    }
 }

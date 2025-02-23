@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -55,6 +56,8 @@
         </div>
 
         <button type="submit" class="btn btn-primary btn-block">Войти</button>
+
+        <p th:if="${param.error}" style="color: red;">Неверный логин или пароль!</p>
     </form>
 
     <div class="form-footer">

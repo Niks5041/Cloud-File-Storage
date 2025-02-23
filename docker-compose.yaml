@@ -7,21 +7,16 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-#        - cfs-mongo
-        - cfs-postgres
+      - cfs-postgres
+      - cfs-minio
     environment:
-#      - SPRING_DATA_MONGODB_URI=mongodb://cfs-mongo:27017/cfs-db
       - SPRING_DATASOURCE_URL=jdbc:postgresql://cfs-postgres:5432/cfs-postgres-db
       - SPRING_DATASOURCE_USERNAME=cfs
       - SPRING_DATASOURCE_PASSWORD=cfs
-
-#  cfs-mongo:
-#    image: mongo:latest
-#    container_name: cfs-mongo
-#    ports:
-#      - "27017:27017"
-#    volumes:
-#      - mongo-data:/data/db
+      - MINIO_ENDPOINT=http://cfs-minio:9000
+      - MINIO_ACCESS_KEY=minioadmin
+      - MINIO_SECRET_KEY=minioadmin
+      - MINIO_BUCKET_NAME=cfs-bucket
 
   cfs-postgres:
     image: postgres:16.1
@@ -35,6 +30,19 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
 
+  cfs-minio:
+    image: minio/minio
+    container_name: cfs-minio
+    ports:
+      - "9000:9000"  # API MinIO
+      - "9001:9001"  # Панель управления MinIO
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio-data:/data
+
 volumes:
-#  mongo-data:
   postgres-data:
+  minio-data:
