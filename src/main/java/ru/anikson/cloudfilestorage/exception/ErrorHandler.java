@@ -27,12 +27,6 @@ public class ErrorHandler {
                 e.getMessage()
         );
     }
-//
-//    @ExceptionHandler(ValidationException.class)
-//    public String handleGeneralException(Exception ex, RedirectAttributes attributes) {
-//        attributes.addFlashAttribute("error", ex.getMessage());
-//        return "redirect:/register";  // Перенаправляем на страницу регистрации с ошибкой
-//    }
 
     @ExceptionHandler(ValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
