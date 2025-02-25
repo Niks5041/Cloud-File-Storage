@@ -26,7 +26,7 @@ public class SecurityConfig {
         http     // Настройка правил доступа
                 .csrf(csrf -> csrf.disable()) // Отключаем CSRF, так как у нас REST API
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/sign-up", "/api/auth/sign-in", "/home").permitAll() // Разрешаем доступ без авторизации к указанным URL
+                        .requestMatchers("/api/auth/sign-up", "/api/auth/sign-in").permitAll() // Разрешаем доступ без авторизации к указанным URL
                         .anyRequest().authenticated() // Все остальные запросы требуют аутентификации
                 )
                 .sessionManagement(session -> session
@@ -34,19 +34,19 @@ public class SecurityConfig {
                         .maximumSessions(1) // Один пользователь — одна активная сессия
                 )
                 // Настройка формы входа
-                .formLogin(login -> login
-                        .loginProcessingUrl("/api/auth/sign-in") // URL, который обрабатывает Spring Security
-                        .successHandler((request, response, authentication) -> {
-                            response.setStatus(HttpServletResponse.SC_OK);
-                            response.getWriter().write("{\"message\": \"Вход выполнен успешно!\"}");
-                            response.getWriter().flush();
-                        })
-                        .failureHandler((request, response, exception) -> {
-                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                            response.getWriter().write("{\"error\": \"Неверные учетные данные\"}");
-                            response.getWriter().flush();
-                        })
-                )
+//                .formLogin(login -> login
+//                        .loginProcessingUrl("/api/auth/sign-in") // URL, который обрабатывает Spring Security
+//                        .successHandler((request, response, authentication) -> {
+//                            response.setStatus(HttpServletResponse.SC_OK);
+//                            response.getWriter().write("{\"message\": \"Вход выполнен успешно!\"}");
+//                            response.getWriter().flush();
+//                        })
+//                        .failureHandler((request, response, exception) -> {
+//                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+//                            response.getWriter().write("{\"error\": \"Неверные учетные данные\"}");
+//                            response.getWriter().flush();
+//                        })
+//                )
                 // Настройка выхода из системы
                 .logout(logout -> logout
                         .logoutUrl("/api/auth/logout") // URL для выхода

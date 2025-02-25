@@ -16,7 +16,10 @@ services:
       - MINIO_ENDPOINT=http://cfs-minio:9000
       - MINIO_ACCESS_KEY=minioadmin
       - MINIO_SECRET_KEY=minioadmin
-      - MINIO_BUCKET_NAME=cfs-bucket
+      - MINIO_BUCKET_NAME=user-files
+#      - SPRING_SESSION_STORE_TYPE=redis  # Указываем, что сессии будут храниться в Redis
+#      - SPRING_SESSION_REDIS_HOST=cfs-redis
+#      - SPRING_SESSION_REDIS_PORT=6379
 
   cfs-postgres:
     image: postgres:16.1
@@ -43,6 +46,15 @@ services:
     volumes:
       - minio-data:/data
 
+#  cfs-redis:
+#    image: redis:latest
+#    container_name: cfs-redis
+#    ports:
+#      - "6379:6379"
+#    volumes:
+#      - redis-data:/data
+
 volumes:
   postgres-data:
   minio-data:
+#  redis-data:

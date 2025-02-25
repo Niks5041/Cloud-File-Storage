@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ru.anikson.cloudfilestorage.dao.UserRepository;
@@ -49,8 +48,8 @@ public class AuthService {
                 new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword())
         );
 
-        // Устанавливаем пользователя в контекст безопасности Spring Security
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+//        // Устанавливаем пользователя в контекст безопасности Spring Security
+//        SecurityContextHolder.getContext().setAuthentication(authentication);
 
         // Создаем сессию, если ее нет (true означает, что сессия будет создана)
         request.getSession(true);
