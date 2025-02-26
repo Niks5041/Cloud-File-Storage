@@ -1,12 +1,15 @@
 package ru.anikson.cloudfilestorage.service;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ru.anikson.cloudfilestorage.dao.UserRepository;
@@ -48,11 +51,13 @@ public class AuthService {
                 new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword())
         );
 
-//        // Устанавливаем пользователя в контекст безопасности Spring Security
-//        SecurityContextHolder.getContext().setAuthentication(authentication);
+        // Устанавливаем аутентификацию в SecurityContext чтобы Spring Security знал, что у сессии есть аутентифицированный пользователь
+        SecurityContext securityContext = SecurityContextHolder.getContext();
+        securityContext.setAuthentication(authentication);
 
-        // Создаем сессию, если ее нет (true означает, что сессия будет создана)
-        request.getSession(true);
+        // Создаем сессию и сохраняем SecurityContext
+        HttpSession session = request.getSession(true);
+        session.setAttribute("SPRING_SECURITY_CONTEXT", securityContext);
 
         log.info("Пользователь {} успешно вошел в систему", user.getUsername());
         return new UserResponse(user.getUsername());

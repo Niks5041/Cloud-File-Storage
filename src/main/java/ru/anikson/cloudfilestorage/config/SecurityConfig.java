@@ -24,8 +24,9 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http     // Настройка правил доступа
-                .csrf(csrf -> csrf.disable()) // Отключаем CSRF, так как у нас REST API
+//                .csrf(csrf -> csrf.disable()) // Отключаем CSRF, так как у нас REST API
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/", "/index.html", "/assets/**", "/config.js").permitAll() // Разрешаем доступ
                         .requestMatchers("/api/auth/sign-up", "/api/auth/sign-in").permitAll() // Разрешаем доступ без авторизации к указанным URL
                         .anyRequest().authenticated() // Все остальные запросы требуют аутентификации
                 )
@@ -33,12 +34,11 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED) // Сессия создается только при необходимости
                         .maximumSessions(1) // Один пользователь — одна активная сессия
                 )
-                // Настройка формы входа
+//                // Настройка формы входа
 //                .formLogin(login -> login
 //                        .loginProcessingUrl("/api/auth/sign-in") // URL, который обрабатывает Spring Security
 //                        .successHandler((request, response, authentication) -> {
 //                            response.setStatus(HttpServletResponse.SC_OK);
-//                            response.getWriter().write("{\"message\": \"Вход выполнен успешно!\"}");
 //                            response.getWriter().flush();
 //                        })
 //                        .failureHandler((request, response, exception) -> {
