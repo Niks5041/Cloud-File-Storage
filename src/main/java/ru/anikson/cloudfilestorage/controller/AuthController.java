@@ -24,9 +24,9 @@ public class AuthController {
         return authService.registerAndAuthenticate(user, request);
     }
 
-//    @PostMapping("/sign-in")
-//    public UserResponse login(@RequestBody User user, HttpServletRequest request) {
-//        log.info("POST /api/auth/sign-in");
-//        return authService.authenticateUser(user, request);
-//    }
+    @PostMapping("/sign-in")
+    public UserResponse login(@RequestBody User user, HttpServletRequest request) {
+        log.info("POST /api/auth/sign-in");
+        return authService.authenticateUser(user, request);
+    }
 }

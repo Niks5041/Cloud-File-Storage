@@ -15,7 +15,7 @@ import java.io.InputStream;
 import java.util.List;
 
 @RestController
-@RequestMapping("/resource")
+@RequestMapping("/files")
 @RequiredArgsConstructor
 @Slf4j
 public class MinioController {
@@ -26,7 +26,7 @@ public class MinioController {
     @ResponseStatus(HttpStatus.OK)
     public ResourceInfo getResourceInfo(@AuthenticationPrincipal UserDetails userDetails,
                                         @RequestParam String path) throws Exception {
-        log.info("GET /resource");
+        log.info("GET /files/resource");
         validateUser(userDetails);
         return minioService.getResourceInfo(userDetails.getUsername(), path);
     }
@@ -35,7 +35,7 @@ public class MinioController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteResource(@AuthenticationPrincipal UserDetails userDetails,
                                @RequestParam String path) throws Exception {
-        log.info("DELETE /resource");
+        log.info("DELETE /files/resource");
         validateUser(userDetails);
         minioService.deleteResource(userDetails.getUsername(), path);
     }
@@ -43,7 +43,7 @@ public class MinioController {
     @GetMapping("/download")
     public byte[] downloadResource(@AuthenticationPrincipal UserDetails userDetails,
                                    @RequestParam String path) throws Exception {
-        log.info("GET /resource/download");
+        log.info("GET /files/resource/download");
         validateUser(userDetails);
         InputStream inputStream = minioService.downloadResource(userDetails.getUsername(), path);
         return inputStream.readAllBytes();
@@ -55,7 +55,7 @@ public class MinioController {
     public List<ResourceInfo> uploadResource(@AuthenticationPrincipal UserDetails userDetails,
                                              @RequestParam String path,
                                              @RequestParam MultipartFile[] files) throws Exception {
-        log.info("POST /resource");
+        log.info("POST /files/resource");
         validateUser(userDetails);
         return minioService.uploadFiles(userDetails.getUsername(), path, files);
     }
@@ -65,7 +65,7 @@ public class MinioController {
     public ResourceInfo moveResource(@AuthenticationPrincipal UserDetails userDetails,
                                      @RequestParam String from,
                                      @RequestParam String to) throws Exception {
-        log.info("GET /resource/move");
+        log.info("GET /files/resource/move");
         validateUser(userDetails);
         return minioService.moveResource(userDetails.getUsername(), from, to);
     }

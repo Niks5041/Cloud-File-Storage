@@ -24,17 +24,18 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http     // Настройка правил доступа
-//                .csrf(csrf -> csrf.disable()) // Отключаем CSRF, так как у нас REST API
+                .csrf(csrf -> csrf.disable()) // Отключаем CSRF, так как у нас REST API
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/index.html", "/assets/**", "/config.js").permitAll() // Разрешаем доступ
-                        .requestMatchers("/api/auth/sign-up", "/api/auth/sign-in").permitAll() // Разрешаем доступ без авторизации к указанным URL
-                        .anyRequest().authenticated() // Все остальные запросы требуют аутентификации
+//                     // Разрешаем доступ
+                        .requestMatchers("/api/auth/sign-up", "/api/auth/sign-in").permitAll()// Разрешаем доступ без авторизации к указанным URL
+                                .requestMatchers("/", "/index.html", "/static/**", "/assets/**", "config.js").permitAll()
+                                .anyRequest().authenticated() // Все остальные запросы требуют аутентификации
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED) // Сессия создается только при необходимости
                         .maximumSessions(1) // Один пользователь — одна активная сессия
                 )
-//                // Настройка формы входа
+                // Настройка формы входа
 //                .formLogin(login -> login
 //                        .loginProcessingUrl("/api/auth/sign-in") // URL, который обрабатывает Spring Security
 //                        .successHandler((request, response, authentication) -> {
@@ -52,7 +53,6 @@ public class SecurityConfig {
                         .logoutUrl("/api/auth/logout") // URL для выхода
                         .logoutSuccessHandler((request, response, authentication) -> {
                             response.setStatus(HttpServletResponse.SC_NO_CONTENT);
-                            response.getWriter().write("{\"message\": \"Выход выполнен успешно!\"}");
                             response.getWriter().flush();
                         })
                         .invalidateHttpSession(true) // Уничтожаем сессию при выходе

@@ -38,9 +38,15 @@ public class AuthService {
         newUser.setPassword(passwordEncoder.encode(user.getPassword()));
 
         userRepository.save(newUser);
-        log.info("Пользователь {} зарегистрирован", user.getUsername());
+        log.info("Пользователь зарегистрирован: " + newUser.getUsername(), newUser.getPassword());
 
-        return authenticateUser(newUser, request);
+        User userForAuth = new User();
+        userForAuth.setUsername(user.getUsername());
+        userForAuth.setPassword(user.getPassword());
+
+        log.info("Юзер для аутентификации" + userForAuth.getUsername(), user.getPassword());
+
+        return authenticateUser(userForAuth, request);
     }
 
     public UserResponse authenticateUser(User user, HttpServletRequest request) {
@@ -50,6 +56,7 @@ public class AuthService {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword())
         );
+        log.info("Учетные данные пользователя {} проверены", user.getUsername(), user.getPassword());
 
         // Устанавливаем аутентификацию в SecurityContext чтобы Spring Security знал, что у сессии есть аутентифицированный пользователь
         SecurityContext securityContext = SecurityContextHolder.getContext();
@@ -58,6 +65,9 @@ public class AuthService {
         // Создаем сессию и сохраняем SecurityContext
         HttpSession session = request.getSession(true);
         session.setAttribute("SPRING_SECURITY_CONTEXT", securityContext);
+
+        log.info("Сессия создана для пользователя {}: {}", user.getUsername(), session.getId());
+        log.info("Сессия содержит атрибут SPRING_SECURITY_CONTEXT: {}", session.getAttribute("SPRING_SECURITY_CONTEXT"));
 
         log.info("Пользователь {} успешно вошел в систему", user.getUsername());
         return new UserResponse(user.getUsername());
