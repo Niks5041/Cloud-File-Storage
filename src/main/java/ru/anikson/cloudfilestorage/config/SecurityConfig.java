@@ -50,7 +50,7 @@ public class SecurityConfig {
 //                )
                 // Настройка выхода из системы
                 .logout(logout -> logout
-                        .logoutUrl("/api/auth/logout") // URL для выхода
+                        .logoutUrl("/api/auth/sign-out") // URL для выхода
                         .logoutSuccessHandler((request, response, authentication) -> {
                             response.setStatus(HttpServletResponse.SC_NO_CONTENT);
                             response.getWriter().flush();

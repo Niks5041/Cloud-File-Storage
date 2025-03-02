@@ -27,7 +27,7 @@ dependencies {
     implementation 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
-    implementation 'io.minio:minio:8.5.7'
+    implementation 'io.minio:minio:8.4.3'
 }
 
 test {

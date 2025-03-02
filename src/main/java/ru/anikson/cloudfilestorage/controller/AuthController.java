@@ -29,4 +29,10 @@ public class AuthController {
         log.info("POST /api/auth/sign-in");
         return authService.authenticateUser(user, request);
     }
+
+    @PostMapping("/sign-out")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void logout(@RequestBody User user, HttpServletRequest request) {
+        log.info("POST /api/auth/sign-out");
+    }
 }
