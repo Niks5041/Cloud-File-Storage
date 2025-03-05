@@ -18,7 +18,7 @@ import java.io.InputStream;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api") // Соответствует API_CONTEXT
+@RequestMapping("/api")
 @RequiredArgsConstructor
 @Slf4j
 public class MinioController {
@@ -106,7 +106,7 @@ public class MinioController {
         return minioService.uploadFiles(userDetails.getUsername(), path, files);
     }
 
-    @PostMapping("/resource/move") // Исправлено с GET на POST
+    @GetMapping("/resource/move") // Исправлено с GET на POST
     @ResponseStatus(HttpStatus.OK)
     public ResourceInfo moveResource(@AuthenticationPrincipal UserDetails userDetails,
                                      @RequestParam String from,

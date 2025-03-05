@@ -12,11 +12,13 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 import ru.anikson.cloudfilestorage.service.security.CustomUserDetailsService;
 
 @Configuration
 @EnableWebSecurity // Включает Spring Security
 @RequiredArgsConstructor
+@EnableRedisHttpSession
 public class SecurityConfig {
 
     private final CustomUserDetailsService cuds;
@@ -33,7 +35,8 @@ public class SecurityConfig {
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED) // Сессия создается только при необходимости
-                        .maximumSessions(1) // Один пользователь — одна активная сессия
+                        .maximumSessions(1)
+                        .expiredUrl("/api/auth/sign-in")// ?expired Один пользователь — одна активная сессия
                 )
                 // Настройка формы входа
 //                .formLogin(login -> login

@@ -1,17 +1,16 @@
 package ru.anikson.cloudfilestorage.service;
 
 import io.minio.*;
+import io.minio.messages.DeleteObject;
 import io.minio.messages.Item;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 import ru.anikson.cloudfilestorage.entity.ResourceInfo;
+import ru.anikson.cloudfilestorage.exception.NotFoundException;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -46,27 +45,27 @@ public class MinioService {
         }
     }
 
-    @PostConstruct
-    public void initializeUserFolders() {
-        try {
-            String userName = SecurityContextHolder.getContext().getAuthentication().getName(); // Получаем имя пользователя
-            String userFolder = "user-" + userName + "-files/";
-
-            // Проверяем, существует ли папка для пользователя
-            if (!resourceExists(userFolder)) {
-                minioClient.putObject(
-                        PutObjectArgs.builder()
-                                .bucket(bucketName)
-                                .object(userFolder) // создаём папку для пользователя
-                                .stream(InputStream.nullInputStream(), 0, -1)
-                                .build()
-                );
-                log.info("Создана папка для пользователя {}: {}", userName, userFolder);
-            }
-        } catch (Exception e) {
-            log.error("Ошибка инициализации папок для пользователей: {}", e.getMessage(), e);
-        }
-    }
+//    @PostConstruct
+//    public void initializeUserFolders() {
+//        try {
+//            String userName = SecurityContextHolder.getContext().getAuthentication().getName(); // Получаем имя пользователя
+//            String userFolder = "user-" + userName + "-files/";
+//
+//            // Проверяем, существует ли папка для пользователя
+//            if (!resourceExists(userFolder)) {
+//                minioClient.putObject(
+//                        PutObjectArgs.builder()
+//                                .bucket(bucketName)
+//                                .object(userFolder) // создаём папку для пользователя
+//                                .stream(InputStream.nullInputStream(), 0, -1)
+//                                .build()
+//                );
+//                log.info("Создана папка для пользователя {}: {}", userName, userFolder);
+//            }
+//        } catch (Exception e) {
+//            log.error("Ошибка инициализации папок для пользователей: {}", e.getMessage(), e);
+//        }
+//    }
 
     private String getUserFolder(String userName) {
         return "user-" + userName + "-files"; // Папка пользователя
@@ -142,19 +141,37 @@ public class MinioService {
     // Удаление ресурса
     public void deleteResource(String userName, String path) throws Exception {
         String fullPath = getUserFolder(userName) + (path.startsWith("/") ? path : "/" + path);
+        fullPath = fullPath.replaceFirst("^" + getUserFolder(userName), ""); // Убираем дублирование
+
         log.info("Удаление ресурса: {}", fullPath);
-        try {
-            minioClient.removeObject(
-                    RemoveObjectArgs.builder()
+
+        Iterable<Result<Item>> objects = minioClient.listObjects(
+                ListObjectsArgs.builder()
+                        .bucket(bucketName)
+                        .prefix(fullPath) // Получаем все файлы с таким префиксом
+                        .recursive(true)  // Рекурсивно, чтобы захватить все вложенные файлы
+                        .build()
+        );
+
+        List<DeleteObject> deleteObjects = new ArrayList<>();
+        for (Result<Item> object : objects) {
+            deleteObjects.add(new DeleteObject(object.get().objectName()));
+        }
+
+        if (!deleteObjects.isEmpty()) {
+            minioClient.removeObjects(
+                    RemoveObjectsArgs.builder()
                             .bucket(bucketName)
-                            .object(fullPath)
+                            .objects(deleteObjects)
                             .build()
             );
-        } catch (Exception e) {
-            log.error("Ошибка при удалении ресурса: {}", fullPath, e);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Неизвестная ошибка при удалении ресурса", e);
+            log.info("Удалены файлы в папке: {}", fullPath);
+        } else {
+            log.warn("Папка пуста или не найдена: {}", fullPath);
+            throw new NotFoundException("Ресурс не найден по пути: " + fullPath);  // Добавление пути в сообщение
         }
     }
+
 
     // Скачивание ресурса
     public InputStream downloadResource(String userName, String path) throws Exception {
@@ -255,9 +272,11 @@ public class MinioService {
             );
             return true;
         } catch (Exception e) {
+            log.error("Ошибка при проверке ресурса: {}", path, e); // Логирование ошибок
             return false;
         }
     }
+
 
     private void createParentDirectories(String fullPath) throws Exception {
         String parentPath = getParentPath(fullPath);

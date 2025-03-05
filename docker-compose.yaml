@@ -9,6 +9,7 @@ services:
     depends_on:
       - cfs-postgres
       - cfs-minio
+      - cfs-redis
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://cfs-postgres:5432/cfs-postgres-db
       - SPRING_DATASOURCE_USERNAME=cfs
@@ -17,9 +18,9 @@ services:
       - MINIO_ACCESS_KEY=minioadmin
       - MINIO_SECRET_KEY=minioadmin
       - MINIO_BUCKET_NAME=user-files
-#      - SPRING_SESSION_STORE_TYPE=redis  # Указываем, что сессии будут храниться в Redis
-#      - SPRING_SESSION_REDIS_HOST=cfs-redis
-#      - SPRING_SESSION_REDIS_PORT=6379
+      - SPRING_REDIS_HOST=cfs-redis
+      - SPRING_REDIS_PORT=6379
+      - SPRING_REDIS_PASSWORD=your-redis-password
 
   cfs-postgres:
     image: postgres:16.1
@@ -46,19 +47,19 @@ services:
     volumes:
       - minio-data:/data
 
-#  cfs-redis:
-#    image: redis:latest
-#    container_name: cfs-redis
-#    ports:
-#      - "6379:6379"
-#    volumes:
-#      - redis-data:/data
-
-networks:
-  cloud_network:
-    driver: bridge
+  cfs-redis:
+    image: redis:latest
+    container_name: cfs-redis
+    command:
+      - redis-server
+      - --requirepass
+      - your-redis-password
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
 
 volumes:
   postgres-data:
   minio-data:
-#  redis-data:
+  redis-data:
