@@ -12,13 +12,11 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 import ru.anikson.cloudfilestorage.service.security.CustomUserDetailsService;
 
 @Configuration
 @EnableWebSecurity // Включает Spring Security
 @RequiredArgsConstructor
-@EnableRedisHttpSession
 public class SecurityConfig {
 
     private final CustomUserDetailsService cuds;

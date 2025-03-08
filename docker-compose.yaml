@@ -9,7 +9,7 @@ services:
     depends_on:
       - cfs-postgres
       - cfs-minio
-      - cfs-redis
+      - redis
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://cfs-postgres:5432/cfs-postgres-db
       - SPRING_DATASOURCE_USERNAME=cfs
@@ -18,9 +18,10 @@ services:
       - MINIO_ACCESS_KEY=minioadmin
       - MINIO_SECRET_KEY=minioadmin
       - MINIO_BUCKET_NAME=user-files
-      - SPRING_REDIS_HOST=cfs-redis
+      - SPRING_REDIS_HOST=redis
       - SPRING_REDIS_PORT=6379
-      - SPRING_REDIS_PASSWORD=your-redis-password
+    networks:
+      - mynetwork
 
   cfs-postgres:
     image: postgres:16.1
@@ -33,6 +34,8 @@ services:
       - POSTGRES_DB=cfs-postgres-db
     volumes:
       - postgres-data:/var/lib/postgresql/data
+    networks:
+      - mynetwork
 
   cfs-minio:
     image: minio/minio
@@ -46,20 +49,25 @@ services:
     command: server /data --console-address ":9001"
     volumes:
       - minio-data:/data
+    networks:
+      - mynetwork
 
-  cfs-redis:
+  redis:
     image: redis:latest
-    container_name: cfs-redis
-    command:
-      - redis-server
-      - --requirepass
-      - your-redis-password
+    container_name: redis
     ports:
       - "6379:6379"
     volumes:
       - redis-data:/data
+    networks:
+      - mynetwork
+    restart: always
 
 volumes:
   postgres-data:
   minio-data:
   redis-data:
+
+networks:
+  mynetwork:
+    driver: bridge
