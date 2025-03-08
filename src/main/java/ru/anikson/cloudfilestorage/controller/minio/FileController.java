@@ -1,6 +1,7 @@
-package ru.anikson.cloudfilestorage.controller;
+package ru.anikson.cloudfilestorage.controller.minio;
 
 import io.minio.errors.MinioException;
+import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -11,70 +12,40 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import ru.anikson.cloudfilestorage.entity.ResourceInfo;
 import ru.anikson.cloudfilestorage.exception.NotFoundException;
-import ru.anikson.cloudfilestorage.exception.ValidationException;
 import ru.anikson.cloudfilestorage.service.MinioService;
 
 import java.io.InputStream;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/resource")
 @RequiredArgsConstructor
 @Slf4j
-public class MinioController {
+public class FileController {
 
     private final MinioService minioService;
 
-    // Работа с папками (/directory)
-    @GetMapping("/directory")
-    @ResponseStatus(HttpStatus.OK)
-    public List<ResourceInfo> getDirectoryContents(@AuthenticationPrincipal UserDetails userDetails,
-                                                   @RequestParam(required = false, defaultValue = "/") String path) throws Exception {
-        log.info("GET /api/directory with path: {}", path);
-
-        if (path.isBlank()) {
-            throw new ValidationException("Path cannot be empty");
-        }
-
-        validateUser(userDetails);
-        return minioService.getDirectoryContents(userDetails.getUsername(), path);
-    }
-
-
-    @PostMapping("/directory")
-    @ResponseStatus(HttpStatus.CREATED)
-    public ResourceInfo createDirectory(@AuthenticationPrincipal UserDetails userDetails,
-                                        @RequestParam String path) throws Exception {
-        log.info("POST /api/directory with path: {}", path);
-        validateUser(userDetails);
-        return minioService.createDirectory(userDetails.getUsername(), path);
-    }
-
-    // Работа с файлами (/resource)
-    @GetMapping("/resource")
+    @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public ResourceInfo getResourceInfo(@AuthenticationPrincipal UserDetails userDetails,
                                         @RequestParam String path) throws Exception {
-        log.info("GET /api/resource with path: {}", path);
+        log.info("GET /api/resource с путём: {}", path);
         validateUser(userDetails);
+        if (path.isBlank()) {
+            throw new ValidationException("Путь не может быть пустым");
+        }
         return minioService.getResourceInfo(userDetails.getUsername(), path);
     }
 
-    @DeleteMapping("/resource")
+    @DeleteMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteResource(@AuthenticationPrincipal UserDetails userDetails,
                                @RequestParam String path) throws Exception {
         log.info("DELETE /api/resource с путём: {}", path);
-
-        // Валидация пользователя
         validateUser(userDetails);
-
-        // Проверка пути
-        if (path == null || path.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Путь не может быть пустым");
+        if (path.isBlank()) {
+            throw new ValidationException("Путь не может быть пустым");
         }
-
-        // Вызов сервиса для удаления ресурса
         try {
             minioService.deleteResource(userDetails.getUsername(), path);
         } catch (MinioException e) {
@@ -86,42 +57,57 @@ public class MinioController {
         }
     }
 
-    @GetMapping("/resource/download")
+    @GetMapping("/download")
     @ResponseStatus(HttpStatus.OK)
     public byte[] downloadResource(@AuthenticationPrincipal UserDetails userDetails,
                                    @RequestParam String path) throws Exception {
-        log.info("GET /api/resource/download with path: {}", path);
+        log.info("GET /api/resource/download с путём: {}", path);
         validateUser(userDetails);
+        if (path.isBlank()) {
+            throw new ValidationException("Путь не может быть пустым");
+        }
         InputStream inputStream = minioService.downloadResource(userDetails.getUsername(), path);
         return inputStream.readAllBytes();
     }
 
-    @PostMapping("/resource")
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public List<ResourceInfo> uploadResource(@AuthenticationPrincipal UserDetails userDetails,
                                              @RequestParam String path,
-                                             @RequestParam MultipartFile[] files) throws Exception {
-        log.info("POST /api/resource with path: {}", path);
+                                             @RequestParam("files") MultipartFile[] files) throws Exception {
+        log.info("POST /api/resource с путём: {}", path);
         validateUser(userDetails);
+        if (path.isBlank()) {
+            throw new ValidationException("Путь не может быть пустым");
+        }
+        if (files == null || files.length == 0) {
+            throw new ValidationException("Не переданы файлы для загрузки");
+        }
         return minioService.uploadFiles(userDetails.getUsername(), path, files);
     }
 
-    @GetMapping("/resource/move") // Исправлено с GET на POST
+    @PostMapping("/move") // Изменил с GET на POST согласно логике перемещения
     @ResponseStatus(HttpStatus.OK)
     public ResourceInfo moveResource(@AuthenticationPrincipal UserDetails userDetails,
                                      @RequestParam String from,
                                      @RequestParam String to) throws Exception {
-        log.info("POST /api/resource/move from: {} to: {}", from, to);
+        log.info("POST /api/resource/move с пути: {} на путь: {}", from, to);
         validateUser(userDetails);
+        if (from.isBlank() || to.isBlank()) {
+            throw new ValidationException("Пути 'from' или 'to' не могут быть пустыми");
+        }
         return minioService.moveResource(userDetails.getUsername(), from, to);
     }
 
-    @GetMapping("/resource/search")
+    @GetMapping("/search")
     @ResponseStatus(HttpStatus.OK)
     public List<ResourceInfo> searchResource(@AuthenticationPrincipal UserDetails userDetails,
                                              @RequestParam String query) throws Exception {
-        log.info("GET /api/resource/search with query: {}", query);
+        log.info("GET /api/resource/search с запросом: {}", query);
         validateUser(userDetails);
+        if (query.isBlank()) {
+            throw new ValidationException("Поисковый запрос не может быть пустым");
+        }
         return minioService.searchResources(userDetails.getUsername(), query);
     }
 
@@ -132,3 +118,4 @@ public class MinioController {
         }
     }
 }
+
