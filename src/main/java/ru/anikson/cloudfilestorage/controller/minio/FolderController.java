@@ -1,6 +1,5 @@
 package ru.anikson.cloudfilestorage.controller.minio;
 
-import io.minio.errors.MinioException;
 import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -8,7 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 import ru.anikson.cloudfilestorage.entity.ResourceInfo;
 import ru.anikson.cloudfilestorage.exception.NotFoundException;
 import ru.anikson.cloudfilestorage.service.MinioService;
@@ -45,26 +43,6 @@ public class FolderController {
             throw new ValidationException("Путь не может быть пустым");
         }
         return minioService.createDirectory(userDetails.getUsername(), path);
-    }
-
-    @DeleteMapping("/directory ")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteDirectory(@AuthenticationPrincipal UserDetails userDetails,
-                                @RequestParam String path) throws Exception {
-        log.info("DELETE /api/directory с путём: {}", path);
-        validateUser(userDetails);
-        if (path.isBlank()) {
-            throw new ValidationException("Путь не может быть пустым");
-        }
-        try {
-            minioService.deleteDirectory(userDetails.getUsername(), path);
-        } catch (MinioException e) {
-            log.error("Ошибка при удалении папки: {}", path, e);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Папка не найдена");
-        } catch (Exception e) {
-            log.error("Неизвестная ошибка при удалении папки: {}", path, e);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Неизвестная ошибка при удалении папки", e);
-        }
     }
 
     @PostMapping("/directory/move")

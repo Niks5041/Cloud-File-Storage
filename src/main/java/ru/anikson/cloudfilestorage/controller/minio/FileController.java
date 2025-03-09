@@ -1,6 +1,5 @@
 package ru.anikson.cloudfilestorage.controller.minio;
 
-import io.minio.errors.MinioException;
 import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +14,7 @@ import ru.anikson.cloudfilestorage.exception.NotFoundException;
 import ru.anikson.cloudfilestorage.service.MinioService;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -48,9 +48,6 @@ public class FileController {
         }
         try {
             minioService.deleteResource(userDetails.getUsername(), path);
-        } catch (MinioException e) {
-            log.error("Ошибка при удалении ресурса: {}", path, e);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Ресурс не найден");
         } catch (Exception e) {
             log.error("Неизвестная ошибка при удалении ресурса: {}", path, e);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Неизвестная ошибка при удалении ресурса", e);
@@ -73,16 +70,14 @@ public class FileController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public List<ResourceInfo> uploadResource(@AuthenticationPrincipal UserDetails userDetails,
-                                             @RequestParam String path,
-                                             @RequestParam("files") MultipartFile[] files) throws Exception {
+                                             @RequestParam("path") String path,
+                                             @RequestPart(value = "files", required = false) MultipartFile[] files) throws Exception {
         log.info("POST /api/resource с путём: {}", path);
-        validateUser(userDetails);
-        if (path.isBlank()) {
-            throw new ValidationException("Путь не может быть пустым");
-        }
         if (files == null || files.length == 0) {
-            throw new ValidationException("Не переданы файлы для загрузки");
+            log.warn("Файлы для загрузки не предоставлены");
+            return new ArrayList<>();
         }
+        log.debug("Получен запрос с path: {}, files: {}", path, files != null ? files.length : "null");
         return minioService.uploadFiles(userDetails.getUsername(), path, files);
     }
 

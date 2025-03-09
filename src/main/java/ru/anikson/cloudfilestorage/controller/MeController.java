@@ -10,13 +10,13 @@ import ru.anikson.cloudfilestorage.dto.UserResponse;
 import ru.anikson.cloudfilestorage.exception.NotFoundException;
 
 @RestController
-@RequestMapping("/user/me")
+@RequestMapping("/api/users/me")
 @Slf4j
 public class MeController {
 
     @GetMapping
-    public UserResponse getMySelf(@AuthenticationPrincipal UserDetails ud) {
-        log.info("GET /user/me");
+    public UserResponse getMySelfAgain(@AuthenticationPrincipal UserDetails ud) {
+        log.info("GET api/users/me");
         if (!ud.isEnabled()) {
             log.error("Пользователь не найден");
             throw new NotFoundException("Пользователь не найден");
