@@ -6,7 +6,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.anikson.cloudfilestorage.dto.UserResponse;
+import ru.anikson.cloudfilestorage.dto.user.UserResponse;
 import ru.anikson.cloudfilestorage.exception.NotFoundException;
 
 @RestController

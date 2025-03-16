@@ -1,4 +1,4 @@
-package ru.anikson.cloudfilestorage.config;
+package ru.anikson.cloudfilestorage.config.minio;
 
 import io.minio.MinioClient;
 import org.springframework.beans.factory.annotation.Value;

@@ -1,4 +1,4 @@
-package ru.anikson.cloudfilestorage.service.security;
+package ru.anikson.cloudfilestorage.service.user.security;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -12,7 +12,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import ru.anikson.cloudfilestorage.service.security.CustomUserDetailsService;
+import ru.anikson.cloudfilestorage.service.user.security.CustomUserDetailsService;
 
 @Configuration
 @EnableWebSecurity // Включает Spring Security

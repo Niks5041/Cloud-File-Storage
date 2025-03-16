@@ -1,7 +1,7 @@
-package ru.anikson.cloudfilestorage.dto.mapper;
+package ru.anikson.cloudfilestorage.dto.user.mapper;
 
 import lombok.experimental.UtilityClass;
-import ru.anikson.cloudfilestorage.dto.UserResponse;
+import ru.anikson.cloudfilestorage.dto.user.UserResponse;
 import ru.anikson.cloudfilestorage.entity.User;
 
 @UtilityClass

@@ -1,4 +1,4 @@
-package ru.anikson.cloudfilestorage.service;
+package ru.anikson.cloudfilestorage.service.user;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -13,7 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ru.anikson.cloudfilestorage.dao.UserRepository;
-import ru.anikson.cloudfilestorage.dto.UserResponse;
+import ru.anikson.cloudfilestorage.dto.user.UserResponse;
 import ru.anikson.cloudfilestorage.entity.User;
 
 @Service
