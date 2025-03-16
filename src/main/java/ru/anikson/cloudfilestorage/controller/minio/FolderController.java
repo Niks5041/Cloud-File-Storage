@@ -21,6 +21,20 @@ public class FolderController {
 
     private final MinioService minioService;
 
+    @PutMapping("/directory")
+    @ResponseStatus(HttpStatus.OK)
+    public List<ResourceInfo> renameDir(@AuthenticationPrincipal UserDetails userDetails,
+                                        @RequestParam String from,
+                                        @RequestParam String to,
+                                        @RequestParam String path) throws Exception {
+        log.info("PUT /api/directory с путём: {}", path);
+        validateUser(userDetails);
+        if (path.isBlank()) {
+            throw new ValidationException("Путь не может быть пустым");
+        }
+        return minioService.renameDir(userDetails.getUsername(), from, to, path);
+    }
+
     @GetMapping("/directory")
     @ResponseStatus(HttpStatus.OK)
     public List<ResourceInfo> getDirectoryContents(@AuthenticationPrincipal UserDetails userDetails,

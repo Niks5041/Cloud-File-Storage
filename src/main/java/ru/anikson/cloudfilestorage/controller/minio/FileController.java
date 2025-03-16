@@ -81,7 +81,7 @@ public class FileController {
         return minioService.uploadFiles(userDetails.getUsername(), path, files);
     }
 
-    @PostMapping("/move") // Изменил с GET на POST согласно логике перемещения
+    @PostMapping("/move")
     @ResponseStatus(HttpStatus.OK)
     public ResourceInfo moveResource(@AuthenticationPrincipal UserDetails userDetails,
                                      @RequestParam String from,

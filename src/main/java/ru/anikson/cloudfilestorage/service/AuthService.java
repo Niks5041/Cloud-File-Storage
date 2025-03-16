@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -57,11 +58,24 @@ public class AuthService {
         );
         log.info("Учетные данные пользователя {} проверены", user.getUsername());
 
-        // Устанавливаем аутентификацию в SecurityContext
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        // Получаем текущий SecurityContext из SecurityContextHolder
+// SecurityContextHolder — это глобальное хранилище, которое содержит информацию об аутентификации текущего запроса
+        SecurityContext securityContext = SecurityContextHolder.getContext();
 
-        // Создаем сессию (Spring Security автоматически сохранит SecurityContext)
+// Устанавливаем объект Authentication в SecurityContext
+// Authentication содержит информацию о пользователе (имя, роли и т.д.), которая была проверена ранее
+// Этот шаг сообщает Spring Security, что пользователь аутентифицирован в рамках текущего запроса
+        securityContext.setAuthentication(authentication);
+
+// Создаем новую сессию или получаем существующую через HttpServletRequest
+// Параметр true означает, что если сессия еще не существует, она будет создана
+// HttpSession используется для хранения данных между запросами в рамках одной сессии пользователя
         HttpSession session = request.getSession(true);
+
+// Явно сохраняем SecurityContext в атрибутах сессии под ключом "SPRING_SECURITY_CONTEXT"
+// Это позволяет Spring Security восстановить информацию об аутентификации при следующем запросе
+// Обычно Spring Security делает это автоматически через SecurityContextPersistenceFilter, но здесь мы делаем это вручную
+        session.setAttribute("SPRING_SECURITY_CONTEXT", securityContext);
         log.info("Сессия создана для пользователя {}: {}", user.getUsername(), session.getId());
 
         log.info("Пользователь {} успешно вошел в систему", user.getUsername());
